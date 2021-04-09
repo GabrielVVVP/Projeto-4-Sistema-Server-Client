@@ -1,0 +1,19 @@
+Client Started 
+Imagem para transmissão: image.png (795 bytes).
+08/04/2021 13:33:20 / enviado / 3 / 128 / 1 / 7 
+08/04/2021 13:33:21 / recebido / 4 / 14 
+08/04/2021 13:33:24 / enviado / 3 / 128 / 2 / 7 
+08/04/2021 13:33:24 / recebido / 4 / 14 
+08/04/2021 13:33:28 / enviado / 3 / 128 / 3 / 7 
+08/04/2021 13:33:28 / recebido / 4 / 14 
+08/04/2021 13:33:31 / enviado / 3 / 128 / 4 / 7 
+08/04/2021 13:33:31 / recebido / 4 / 14 
+08/04/2021 13:33:34 / enviado / 3 / 128 / 5 / 7 
+08/04/2021 13:33:34 / recebido / 4 / 14 
+08/04/2021 13:33:37 / enviado / 3 / 128 / 6 / 7 
+08/04/2021 13:33:37 / recebido / 4 / 14 
+08/04/2021 13:33:40 / enviado / 3 / 128 / 7 / 7 
+08/04/2021 13:33:40 / recebido / 4 / 14 
+Procedimento finalizado
+Tempo de execução: 28.28 segundos.
+Velocidade de transmissão: 28.11 Bytes/segundos.

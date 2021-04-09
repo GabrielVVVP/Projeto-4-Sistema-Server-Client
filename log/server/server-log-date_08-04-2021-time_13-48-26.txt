@@ -1,0 +1,18 @@
+Server Started 
+Local onde a imagem recebida será salva: C:/Users/Gabriel Vilaca/Desktop/Insper & SDU/Insper COMP/1 Semestre/Camada Física da Computação/Aula 7 e 8/Projeto 4 - Server-Client-Pacotes-GUI-GIT/imgs\Copia_recebida.png.
+08/04/2021 13:48:37 / recebido / 3 / 128 / 1 / 7 
+08/04/2021 13:48:37 / enviado / 4 / 14 
+08/04/2021 13:48:39 / recebido / 3 / 128 / 2 / 7 
+08/04/2021 13:48:39 / enviado / 4 / 14 
+08/04/2021 13:48:41 / recebido / 3 / 128 / 3 / 7 
+08/04/2021 13:48:41 / enviado / 4 / 14 
+08/04/2021 13:48:43 / recebido / 3 / 128 / 4 / 7 
+08/04/2021 13:48:43 / enviado / 4 / 14 
+08/04/2021 13:48:45 / recebido / 3 / 128 / 5 / 7 
+08/04/2021 13:48:45 / enviado / 4 / 14 
+08/04/2021 13:48:47 / recebido / 3 / 128 / 6 / 7 
+08/04/2021 13:48:47 / enviado / 4 / 14 
+08/04/2021 13:48:49 / recebido / 3 / 128 / 7 / 7 
+08/04/2021 13:48:49 / enviado / 4 / 14 
+Procedimento finalizado
+Salvando dados no arquivo: Copia_recebida.png.
