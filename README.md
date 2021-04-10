@@ -1,4 +1,4 @@
-# Projeto-4-Sistema-Server-Client
+# Projeto 4 - Sistema Server-Client
 
 Na pasta de Logs, terá os 4 logs listados pela entrega, com a exceção da transmissão 5 com falha física, devido a natureza simulada deste projeto.
 
