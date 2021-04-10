@@ -87,7 +87,7 @@ while True:
     if (temp == 2):
         state_machine += 1
         temp=1 
-    if (state_machine == 6):
+    if (state_machine == 6)or(count==1000000000):
         count = 1
         state_machine=0
         temp=0 
@@ -172,12 +172,12 @@ while True:
     elif state_machine == 3:  
         try:
             # Enviando os pacotes
-            if(count<=numberofpackages):
+            if(count<numberofpackages):
                 server_org_resp = server_info.data_receive_response(count)
                 count = server_org_resp[2]
                 window["-ROUT8-"].update(server_org_resp[0])
                 window["-ROUT9-"].update(server_org_resp[1])   
-            if (count>numberofpackages):
+            if (count==numberofpackages):
                 temp=2
             window.Refresh()    
         except:

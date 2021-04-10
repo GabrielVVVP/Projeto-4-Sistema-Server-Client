@@ -42,7 +42,7 @@ file_list_column = [
         sg.Combo(['COM1', 'COM2', 'COM3','COM4'], enable_events=True,size=(10, 4), key='combo4'),
     ],
     [sg.Button('Atribuir Portas',size=(15, 2),enable_events=True, key="-BEGIN-")],
-    [sg.Button('Enviar Handshake',size=(15, 2),visible=False,enable_events=True, key="-HAND-")],
+    [sg.Button('Reenviar Handshake',size=(15, 2),visible=False,enable_events=True, key="-HAND-")],
     [sg.Text(size=(40, 1), key="-BEGINTXT-")],
 ]
 
@@ -98,7 +98,7 @@ while True:
     if (temp == 2):
         state_machine += 1
         temp=1 
-    if (state_machine == 6):
+    if (state_machine == 6)or(count==1000000000):
         count = 1
         state_machine=0
         temp=0 

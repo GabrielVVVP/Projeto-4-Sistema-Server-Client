@@ -1,0 +1,21 @@
+Client Started 
+Imagem para transmissão: image.png (795 bytes).
+Enviando para o Server o Handshake. 
+Recebido do Server a resposta do handshake corretamente. 
+09/04/2021 15:01:00 / enviado / 3 / 128 / 1 / 7 
+09/04/2021 15:01:00 / recebido / 4 / 14 
+09/04/2021 15:01:02 / enviado / 3 / 128 / 2 / 7 
+09/04/2021 15:01:02 / recebido / 4 / 14 
+09/04/2021 15:01:04 / enviado / 3 / 128 / 3 / 7 
+09/04/2021 15:01:04 / recebido / 4 / 14 
+09/04/2021 15:01:06 / enviado / 3 / 128 / 4 / 7 
+09/04/2021 15:01:06 / recebido / 4 / 14 
+09/04/2021 15:01:08 / enviado / 3 / 128 / 5 / 7 
+09/04/2021 15:01:08 / recebido / 4 / 14 
+09/04/2021 15:01:10 / enviado / 3 / 128 / 6 / 7 
+09/04/2021 15:01:10 / recebido / 4 / 14 
+09/04/2021 15:01:12 / enviado / 3 / 128 / 7 / 7 
+09/04/2021 15:01:12 / recebido / 4 / 14 
+Procedimento finalizado
+Tempo de execução: 17.03 segundos.
+Velocidade de transmissão: 46.68 Bytes/segundos.

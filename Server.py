@@ -18,56 +18,73 @@ class Server:
         self.Baud_Rate = baudrate
         self.servidor = servidor
         self.sensor = sensor
+        self.rxBuffer_copy = 0
     
-    def package_analyzer(self,buffer, count, num_receive, sensor, servidor): 
-        type_pkg = False
-        h0 = buffer[0]
-        h1 = buffer[1]
-        h2 = buffer[2]
-        h3 = buffer[3]
-        h4 = buffer[4]
-        h5 = buffer[5]
-        h6 = buffer[6]
-        h7 = buffer[7]
-        h8 = buffer[8]
-        h9 = buffer[9]
+    def package_analyzer(self,buffer, count, num_receive, sensor, servidor, temp_pl):
         
-        if (h5==114):
-            payload_package = buffer[10:-4]
-            if h5 == len(payload_package):
-                type_pkg = True
-            
-        else:
-            payload_package = buffer[10:10+h5]
-            extra_zero = buffer[10+h5:-4]  
-            if 114==(len(payload_package)+len(extra_zero)):
-                type_pkg = True
-            
-        e1 = buffer[-4]
-        e2 = buffer[-3]
-        e3 = buffer[-2]
-        e4 = buffer[-1]    
+        try:
         
-        if (h0 == 3)and(h1 == sensor)and(h2 == servidor)and(h3 == num_receive)and(h4==count)and(type_pkg==True)and(h8==0)and(h9==0)and(e1==255)and(e2==170)and(e3==255)and(e4==170):
-            respost = "Tudo correto."
-            return respost, h5 
-        else:
-            errormsg = "Ocorreu(eram) os seguinte(s) erros: "
-            if (h0!= 3):
-                errormsg += "ID de Mensagem corrompida. "
-            elif (h1 != sensor):
-                errormsg += "Mensagem para outro sensor. "
-            elif (h2 != servidor):
-                errormsg += "Mensagem para outro servidor. "
-            elif (h3!=num_receive):
-                errormsg += "Quantidade total de pacotes incorreta no Head. "    
-            elif (h4 != count):
-                errormsg += "ID incorreto no Head. "
-            elif (type_pkg!=True):
-                errormsg += "Tamanho do Payload incorreto. "
-            elif ((e1==255)or(e2==170)or(e3==255)or(e1==170)):
-                errormsg += "Valor final incorreto."    
+            type_pkg = False
+            h0 = buffer[0]
+            h1 = buffer[1]
+            h2 = buffer[2]
+            h3 = buffer[3]
+            h4 = buffer[4]
+            h5 = buffer[5]
+            h6 = buffer[6]
+            h7 = buffer[7]
+            h8 = buffer[8]
+            h9 = buffer[9]
+            
+            if (h5==114):
+                payload_package = buffer[10:-4]
+                if h5 == len(payload_package):
+                    type_pkg = True
+                
+            else:
+                payload_package = buffer[10:10+h5]
+                extra_zero = buffer[10+h5:-4]  
+                if 114==(len(payload_package)+len(extra_zero)):
+                    type_pkg = True
+                
+            e1 = buffer[-4]
+            e2 = buffer[-3]
+            e3 = buffer[-2]
+            e4 = buffer[-1]    
+            
+            if temp_pl == False:
+                checking = count
+            else:
+                checking = count+1
+            
+            if (h0 == 3)and(h1 == sensor)and(h2 == servidor)and(h3 == num_receive)and(h4==checking)and(type_pkg==True)and(h8==0)and(h9==0)and(e1==255)and(e2==170)and(e3==255)and(e4==170):
+                respost = "Tudo correto."
+                return respost, h5 
+            else:
+                errormsg = "Ocorreu(eram) os seguinte(s) erros: "
+                if (h0!= 3):
+                    errormsg += "ID de Mensagem corrompida. "
+                if (h1 != sensor):
+                    errormsg += "Mensagem para outro sensor. "
+                if (h2 != servidor):
+                    errormsg += "Mensagem para outro servidor. "
+                if (h3!=num_receive):
+                    errormsg += "Quantidade total de pacotes incorreta no Head. "    
+                if (h4 != count):
+                    errormsg += "ID incorreto no Head. "
+                if (type_pkg!=True):
+                    errormsg += "Tamanho do Payload incorreto. "
+                if ((e1!=255)or(e2!=170)or(e3!=255)or(e1!=170)):
+                    errormsg += "Valor final incorreto."
+                else:
+                    errormsg += "Pacote corrompido."
+                return errormsg, h5
+        
+        except:
+            errormsg = "Pacote corrompido."
+            h5 = 0
             return errormsg, h5
+                
     
     def package_modifier(self,package,h0=0,h1=0,h2=0,h3=0,h4=0,h5=0,h6=0,h7=0,h8=0,h9=0,remove_payload=0):
         
@@ -110,16 +127,20 @@ class Server:
         return package 
 
     def msg_analyzer(self,buffer):
-        msg_package = buffer[0]
         
-        if(msg_package==1):
-            respost = "Handshake do client."
-        elif(msg_package==3):
-            respost = "Pacote recebido."
-        elif(msg_package==5):
-            respost = "Timeout do client."
-        else:
-            respost = "Byte h0 corrompido."
+        try:
+            msg_package = buffer[0]
+        
+            if(msg_package==1):
+                respost = "Handshake do client."
+            elif(msg_package==3):
+                respost = "Pacote recebido."
+            elif(msg_package==5):
+                respost = "Timeout do client."
+            else:
+                 respost = "Mensagem corrompida."
+        except:
+            respost = "Resposta não recebida."
         return respost    
     
     def handshake_analyzer(self,buffer,servidor,sensor):
@@ -166,6 +187,7 @@ class Server:
             timetxt = time.strftime("date_%d-%m-%Y-time_%H-%M-%S")
             self.arch = "./log/server/server-log-"+timetxt+".txt"
             self.f = open(self.arch, "a")
+            self.temp_pl = False
             
             print("-------------------------")
             print("Opening log archive")
@@ -210,7 +232,10 @@ class Server:
             print(erro)
             self.STX.disable()
             self.SRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
                 
     def handshake_receive_response(self):
         try:
@@ -228,7 +253,10 @@ class Server:
             print(erro)
             self.STX.disable()
             self.SRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
                 
     def execution_start(self):
         try:
@@ -251,44 +279,55 @@ class Server:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()             
+            try:
+                self.f.close()
+            except:
+                pass             
                 
     def data_receive_response(self, count):
         try: 
             check_var=True
             while (check_var==True):
-                rxBuffer, nRx, self.time_count = self.SRX.getData(128,timeout=2,use_timeout=2,time_count=self.time_count)
-                rxBuffer = bytearray(rxBuffer)
-                self.log_generator("recebido",rxBuffer)
-                msg_check = self.msg_analyzer(rxBuffer)
+                self.rxBuffer, nRx, self.time_count = self.SRX.getData(128,timeout=2,use_timeout=2,time_count=self.time_count)
+                self.rxBuffer = bytearray(self.rxBuffer)
+                if (len(self.rxBuffer)!=0):
+                    self.log_generator("recebido",self.rxBuffer)  
+                msg_check = self.msg_analyzer(self.rxBuffer)
                 if (msg_check=="Pacote recebido."):
-                    package_check, lenght_pkg = self.package_analyzer(rxBuffer, count, self.num_receive, self.sensor, self.servidor)
+                    package_check, lenght_pkg = self.package_analyzer(self.rxBuffer, count, self.num_receive, self.sensor, self.servidor, self.temp_pl)
                     if (package_check=="Tudo correto."):
+                        if (self.temp_pl==True):
+                            self.temp_pl = False
+                            count+=1 
+                        self.f.write("Pacote recebido corretamente. \n")
                         server_data_msg1 = "Pacote recebido corretamente."
                         print(server_data_msg1)
                         server_data_msg2 = "Pacote atual: {} de {}.".format(count,self.num_receive)
                         print(server_data_msg2)
                         print("-------------------------")
-                        count+=1
                         self.time_count = 0
-                        self.arquivo_recebido+=rxBuffer[10:10+lenght_pkg]
-                        response_pkg = self.package_modifier(rxBuffer,h0=4,h7=1,remove_payload=1)
+                        self.arquivo_recebido+=self.rxBuffer[10:10+lenght_pkg]
+                        response_pkg = self.package_modifier(self.rxBuffer,h0=4,h7=1,remove_payload=1)
                         self.STX.sendData(np.asarray(response_pkg))
                         self.log_generator("enviado",response_pkg)
+                        self.rxBuffer_copy = self.rxBuffer
                         check_var=False
+                        self.temp_pl=True
                     else:
                         server_data_msg1 = package_check
+                        self.f.write(server_data_msg1+" \n")
                         print(server_data_msg1)
                         server_data_msg2 = "Pacote atual: {} de {}.".format(count,self.num_receive)
                         print(server_data_msg2)
                         print("-------------------------")
-                        response_pkg = self.package_modifier(rxBuffer,h0=6,h6=count,remove_payload=1)
+                        response_pkg = self.package_modifier(self.rxBuffer,h0=6,h6=count,remove_payload=1)
                         self.STX.sendData(np.asarray(response_pkg))
                         self.log_generator("enviado",response_pkg)
                         check_var=False
-                else:
+                elif(msg_check=="Resposta não recebida."):
                     time.sleep(1) 
-                    if (self.time_count==10):                        
+                    if (self.time_count==10):      
+                        self.f.write("O sistema entrou em timeout. Abortando operação. \n")
                         server_data_msg1 = "Timed out."
                         print(server_data_msg1)
                         server_data_msg2 = "Comunicação encerrada com as portas {} e {}.".format(self.comTX,self.comRX)
@@ -297,10 +336,19 @@ class Server:
                         self.STX.fisica.flush()
                         self.SRX.fisica.flush()
                         self.STX.disable()
-                        self.SRX.disable()     
+                        self.SRX.disable()
+                        self.f.close()
+                        count=1000000000
+                        return([server_data_msg1,server_data_msg2, count])
                     elif (self.time_count>=1):
                         #Enviar de novo, caso o client não recebeu a resposta
-                        response_pkg = self.package_modifier(rxBuffer,h0=4,h7=1,remove_payload=1)
+                        self.f.write("A resposta do Server não foi recebida. \n")
+                        if (len(self.rxBuffer)>14):
+                            response_pkg = self.package_modifier(self.rxBuffer,h0=4,h7=1,remove_payload=1) 
+                            self.log_generator("enviado",response_pkg)
+                        else:
+                            response_pkg = self.package_modifier(self.rxBuffer_copy,h0=4,h7=1,remove_payload=1) 
+                            self.log_generator("enviado",response_pkg)
                         self.STX.sendData(np.asarray(response_pkg))
                         server_data_msg1 = "Reenvio de resposta para o client."
                         print(server_data_msg1)
@@ -315,7 +363,11 @@ class Server:
             print(erro)
             self.STX.disable()
             self.SRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
+            return(["","", 1000000000])
     
     def execution_end(self):
         try:
@@ -331,14 +383,17 @@ class Server:
             print("ops! :-\\")
             print(erro)
             self.CTX.disable()
-            self.CRX.disable() 
-            self.f.close()            
+            self.CRX.disable()
+            try:
+                self.f.close()
+            except:
+                pass
                 
     def end_connection(self):
         try:
             # Salva imagem
             print("-------------------------")
-            self.f.write("Procedimento finalizado"+"\n")
+            self.f.write("Procedimento finalizado."+"\n")
             image_name = self.location_w.split("\\")
             server_end_msg1 = "Salvando dados no arquivo: {}.".format(image_name[1])
             self.f.write(server_end_msg1+"\n")
@@ -352,9 +407,14 @@ class Server:
             server_end_msg2 = "Comunicação encerrada com as portas {} e {}.".format(self.comTX,self.comRX)
             print(server_end_msg2)
             print("-------------------------")
+            self.STX.fisica.flush()
+            self.SRX.fisica.flush()
             self.STX.disable()
             self.SRX.disable() 
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
             
             return([server_end_msg1,server_end_msg2])
         
@@ -363,4 +423,7 @@ class Server:
             print(erro)
             self.STX.disable()
             self.SRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass

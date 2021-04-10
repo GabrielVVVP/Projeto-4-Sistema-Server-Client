@@ -25,24 +25,27 @@ class Client:
         self.sensor= sensor
         
     def package_analyzer(self,buffer):
-        msg_package = buffer[0]
-        
-        if(msg_package==2):
-            respost = "Recebido do Server a resposta do handshake corretamente."
-        elif(msg_package==4):
-            ultimo_corr = buffer[7]
-            if (ultimo_corr==1):
-                respost = "Tudo correto."
+
+        try:
+            msg_package = buffer[0]
+            if(msg_package==2):
+                respost = "Recebido do Server a resposta do handshake corretamente."
+            elif(msg_package==4):
+                ultimo_corr = buffer[7]
+                if (ultimo_corr==1):
+                    respost = "Tudo correto."
+                else:
+                    respost = "Tudo correto."
+            elif(msg_package==6):
+                reenvio = buffer[6]
+                if (reenvio!=0):
+                    respost = "Erro no pacote, o pacote será reenviado."
+                else:
+                    respost = "Byte h6 corrompido."
             else:
-                respost = "Reenvio de pacote."
-        elif(msg_package==6):
-            reenvio = buffer[6]
-            if (reenvio!=0):
-                respost = "Erro no ID do pacote, o pacote será reenviado."
-            else:
-                respost = "Byte h6 corrompido."
-        else:
-            respost = "Byte h0 corrompido."
+                respost = "Byte h0 corrompido."
+        except:
+            respost = "Falha no recebimento da resposta."
         
         return respost    
     
@@ -174,6 +177,28 @@ class Client:
         else:
             errormsg = "O Acknowledge do Server não foi recebido corretamente."   
             return errormsg
+        
+    def package_errors(self,buffer,force_errors=0):
+        # Force Errors
+        if(force_errors==1):
+            id_value = buffer[4]
+            id_value+=1
+            id_val = (id_value).to_bytes(1, byteorder="big")
+            buffer = buffer[:4]+id_val+buffer[5:]
+        elif(force_errors==2):
+            quantity_value = buffer[3]
+            quantity_value+=1
+            q_val = (quantity_value).to_bytes(1, byteorder="big")
+            buffer = buffer[:3]+q_val+buffer[4:]
+        elif(force_errors==3):
+            size_value = buffer[5]
+            size_value+=1
+            s_val = (size_value).to_bytes(1, byteorder="big")
+            buffer = buffer[:5]+s_val+buffer[6:]
+        elif(force_errors==4):
+            wrong_end = (203).to_bytes(1, byteorder="big")
+            buffer = buffer[:-1]+wrong_end
+        return buffer    
     
     def log_generator(self,typeof,msg):
         msg_type,total,current = self.buffer_values(msg)
@@ -218,6 +243,7 @@ class Client:
             self.CTX.enable()
             self.CRX.enable()
             self.count = 1
+            self.flux_again = 0
             
             # Se chegamos até aqui, a comunicação foi aberta com sucesso. Faça um print para informar.
             client_init_msg1 = "Client TX iniciado na porta: {}.".format(self.comTX)
@@ -249,12 +275,17 @@ class Client:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
+            return(["","", 1000000000])
                 
     def handshake_send_response(self):
         try:
             # Enviando para o Server o Header
-            client_comm_msg1 = "Enviando o para o Server o Handshake."
+            client_comm_msg1 = "Enviando para o Server o Handshake."
+            self.f.write("Enviando para o Server o Handshake. \n")
             print(client_comm_msg1)
             print("-------------------------")
             self.CTX.sendData(np.asarray(self.pacotes[0])) 
@@ -262,9 +293,15 @@ class Client:
             # Recebendo uma resposta do Server sobre o Handshake
             client_comm_msg2 = "Esperando a resposta do Server sobre o Handshake."
             print(client_comm_msg2)
-            self.rxBuffer_H, nRx = self.CRX.getData(14)
+            self.rxBuffer_H, nRx = self.CRX.getData(14, timeout=20)
             self.rxBuffer_H = bytearray(self.rxBuffer_H)
             client_comm_msg3 = self.package_analyzer(self.rxBuffer_H)
+            if (client_comm_msg3=="Recebido do Server a resposta do handshake corretamente."):
+                self.f.write("Recebido do Server a resposta do handshake corretamente. \n")
+            elif (client_comm_msg3=="Falha no recebimento da resposta."):
+                self.f.write("O handshake não foi enviado corretamente e retornou timeout de 20 segundos. \n")
+            else:
+                self.f.write("A resposta do handshake foi recebida com erros. \n")
             print(client_comm_msg3)
             print("-------------------------")
             
@@ -275,7 +312,10 @@ class Client:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
     
     def execution_start(self):
         try:
@@ -295,18 +335,37 @@ class Client:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()  
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
                 
     def data_send_response(self, count):
         try:
-            self.CTX.sendData(np.asarray(self.pacotes[count]))
-            self.log_generator("enviado",self.pacotes[count])
-            time.sleep(0.1)
+            my_errors = [0,1,2,3,4]
+            error_value = random.choices(my_errors, weights = [100,0,0,0,0])[0]
+            transmission_stop = [0,10,20]
+            trans_num = random.choices(transmission_stop, weights = [100,0,0])[0]
+            self.pacote = self.pacotes[count]
+            self.txBuffer_S = self.package_errors(self.pacote,error_value)
+            self.CTX.sendData(np.asarray(self.txBuffer_S))
+            if (len(self.txBuffer_S)!=0):
+                self.log_generator("enviado",self.txBuffer_S)
+            time.sleep(trans_num)
+            if (trans_num!=0)or(self.flux_again==1):
+                self.CRX.fisica.flush()
+                self.CTX.disable()
+                self.CTX.enable()
+                self.flux_again+= 1
+                if (self.flux_again==2):
+                    self.flux_again=0
             self.rxBuffer_D, nRx, self.time_count = self.CRX.getData(14,use_timeout=2,time_count=self.time_count)
             self.rxBuffer_D = bytearray(self.rxBuffer_D)
             package_check = self.package_analyzer(self.rxBuffer_D)
-            self.log_generator("recebido",self.rxBuffer_D)
+            if (len(self.rxBuffer_D)!=0):
+                self.log_generator("recebido",self.rxBuffer_D)   
             if (package_check=="Tudo correto."):
+                self.f.write("Pacote recebido corretamente. \n")
                 client_data_msg1 = "Pacote enviado corretamente."
                 print(client_data_msg1)
                 client_data_msg2 = "Pacote atual: {} de {}.".format(count,self.numberofpackages)
@@ -318,7 +377,8 @@ class Client:
                 print(client_data_msg1)
                 client_data_msg2 = "Pacote atual: {} de {}.".format(count,self.numberofpackages)
                 print(client_data_msg2)
-                if (self.time_count==4):
+                if (self.time_count>=4):
+                    self.f.write("O sistema entrou em timeout. Abortando operação. \n")
                     current_pkg = self.package_modifier(self.pacotes[count],h0=5,remove_payload=1)
                     self.CTX.sendData(np.asarray(current_pkg))
                     client_data_msg1 = "Timed out."
@@ -326,22 +386,19 @@ class Client:
                     print("-------------------------")
                     client_data_msg2 = "Comunicação encerrada com as portas {} e {}.".format(self.comTX,self.comRX)
                     print(client_data_msg2)
-                    print("-------------------------")
                     self.CTX.fisica.flush()
                     self.CRX.fisica.flush()
                     self.CTX.disable()
                     self.CRX.disable()
                     self.f.close()
-                elif (package_check=="Erro no ID do pacote, o pacote será reenviado."):
-                    client_data_msg1 = package_check
-                    print(client_data_msg1)
-                    current_pkg = self.package_modifier(self.pacotes[count],h4=count)
-                    self.CTX.sendData(np.asarray(current_pkg))
+                    count=1000000000
+                elif (package_check=="Erro no pacote, o pacote será reenviado."):
+                    self.f.write("Erro no pacote recebido. \n")
                     
                 elif (self.time_count>=1):
+                    self.f.write("A resposta do Server não foi recebida. \n")
                     client_data_msg1 = "Timer de reenvio excedido. Reenviando o pacote."
                     print(client_data_msg1)
-                    self.CTX.sendData(np.asarray(self.pacotes[count])) 
                 
             print("-------------------------")               
                               
@@ -352,7 +409,10 @@ class Client:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
     
     def execution_end(self):
         try:
@@ -379,7 +439,10 @@ class Client:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()            
+            try:
+                self.f.close()
+            except:
+                pass            
                 
     def end_connection(self):
         try:
@@ -389,7 +452,7 @@ class Client:
             
             # Encerra tempo de cronometro
             print("Procedimento finalizado")
-            self.f.write("Procedimento finalizado"+"\n")
+            self.f.write("Procedimento finalizado."+"\n")
             self.execution_time = time.time() - self.start_time
             client_end_msg2 = "Tempo de execução: {:.2f} segundos.".format(self.execution_time)
             print(client_end_msg2)
@@ -403,9 +466,14 @@ class Client:
             client_end_msg4 = "Comunicação encerrada com as portas {} e {}.".format(self.comTX,self.comRX)
             print(client_end_msg4)
             print("-------------------------")
+            self.CTX.fisica.flush()
+            self.CRX.fisica.flush()
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass
             
             return([client_end_msg1,client_end_msg2,client_end_msg3,client_end_msg4])
         
@@ -414,4 +482,7 @@ class Client:
             print(erro)
             self.CTX.disable()
             self.CRX.disable()
-            self.f.close()
+            try:
+                self.f.close()
+            except:
+                pass

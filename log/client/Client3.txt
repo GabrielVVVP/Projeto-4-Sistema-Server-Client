@@ -1,0 +1,30 @@
+Client Started 
+Imagem para transmissão: image.png (795 bytes).
+Enviando para o Server o Handshake. 
+O handshake não foi enviado corretamente e retornou timeout de 20 segundos. 
+Enviando para o Server o Handshake. 
+Recebido do Server a resposta do handshake corretamente. 
+09/04/2021 20:16:10 / enviado / 3 / 128 / 1 / 7 
+09/04/2021 20:16:11 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 20:16:12 / enviado / 3 / 128 / 2 / 7 
+09/04/2021 20:16:13 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 20:16:14 / enviado / 3 / 128 / 3 / 7 
+09/04/2021 20:16:15 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 20:16:16 / enviado / 3 / 128 / 4 / 7 
+09/04/2021 20:16:17 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 20:16:18 / enviado / 3 / 128 / 5 / 7 
+09/04/2021 20:16:19 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 20:16:20 / enviado / 3 / 128 / 6 / 7 
+09/04/2021 20:16:21 / recebido / 4 / 14 
+Pacote recebido corretamente 
+09/04/2021 20:16:22 / enviado / 3 / 128 / 7 / 7 
+09/04/2021 20:16:23 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+Procedimento finalizado.
+Tempo de execução: 17.08 segundos.
+Velocidade de transmissão: 46.54 Bytes/segundos.

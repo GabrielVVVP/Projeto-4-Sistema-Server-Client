@@ -1,0 +1,21 @@
+Client Started 
+Imagem para transmissão: image.png (795 bytes).
+Enviando para o Server o Handshake. 
+Recebido do Server a resposta do handshake corretamente. 
+09/04/2021 21:00:17 / enviado / 3 / 128 / 1 / 7 
+09/04/2021 21:00:18 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 21:00:19 / enviado / 3 / 128 / 2 / 7 
+09/04/2021 21:00:20 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 21:00:21 / enviado / 3 / 128 / 3 / 7 
+09/04/2021 21:00:22 / recebido / 4 / 14 
+Pacote recebido corretamente. 
+09/04/2021 21:00:23 / enviado / 3 / 128 / 4 / 7 
+A resposta do Server não foi recebida. 
+09/04/2021 21:00:31 / enviado / 3 / 128 / 4 / 7 
+A resposta do Server não foi recebida. 
+09/04/2021 21:00:38 / enviado / 3 / 128 / 4 / 7 
+A resposta do Server não foi recebida. 
+09/04/2021 21:00:45 / enviado / 3 / 128 / 4 / 7 
+O sistema entrou em timeout. Abortando operação. 
